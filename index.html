@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ប្រព័ន្ធលិខិតបញ្ជូន — KCPH</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap');
+
+/* ── RESET ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/* ── ROOT VARS ── */
+:root{
+  --blue:#000099;--blue-light:#e8e8ff;--blue-mid:#3333cc;
+  --green:#006633;--green-light:#e6f4ec;
+  --orange:#cc6600;--red:#cc0000;
+  --gray:#f5f5f7;--border:#ccd;--text:#000;--muted:#666;--radius:10px;
+}
+
+/* ── LOCK SCREEN ── */
+body{font-family:'Hanuman','Khmer OS','Khmer OS System',serif;
+  background:linear-gradient(135deg,#000066 0%,#000099 60%,#0000cc 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:20px;color:var(--text)}
+
+.lock-card{
+  background:#fff;border-radius:16px;padding:40px 36px;
+  max-width:400px;width:100%;text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+.lock-logo{font-size:42px;margin-bottom:12px}
+.lock-title{font-size:14pt;font-weight:700;color:var(--blue);margin-bottom:4px}
+.lock-sub{font-size:9pt;color:var(--muted);margin-bottom:24px}
+.lock-tabs{display:flex;gap:0;border:2px solid var(--blue);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.lock-tab{flex:1;padding:9px;font-family:inherit;font-size:9.5pt;font-weight:700;
+  border:none;background:#fff;color:var(--blue);cursor:pointer;transition:all .2s}
+.lock-tab.active{background:var(--blue);color:#fff}
+.lock-input{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:11px 14px;font-family:inherit;font-size:11pt;
+  color:#000;letter-spacing:4px;text-align:center;margin-bottom:12px;outline:none;
+}
+.lock-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,0,153,.12)}
+.lock-btn{
+  width:100%;padding:12px;border:none;border-radius:8px;
+  font-family:inherit;font-size:11pt;font-weight:700;cursor:pointer;
+  background:var(--blue);color:#fff;transition:opacity .2s;
+}
+.lock-btn:hover{opacity:.87}
+.lock-err{color:var(--red);font-size:9pt;margin-top:6px;min-height:18px}
+
+/* ── APP WRAPPER (hidden until login) ── */
+#appWrapper{display:none;width:100%;flex-direction:column;align-items:center}
+
+/* ── TOP NAV BAR ── */
+.topnav{
+  width:100%;max-width:1100px;
+  background:var(--blue);color:#fff;border-radius:var(--radius);
+  padding:10px 20px;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+}
+.topnav-left{display:flex;align-items:center;gap:14px}
+.topnav h1{font-size:10.5pt;font-weight:700}
+.nav-tabs{display:flex;gap:0;border:1.5px solid rgba(255,255,255,.3);border-radius:7px;overflow:hidden}
+.nav-tab{
+  padding:6px 16px;font-family:inherit;font-size:9pt;font-weight:700;
+  border:none;background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;
+}
+.nav-tab.active{background:rgba(255,255,255,.2);color:#fff}
+.nav-tab:hover:not(.active){background:rgba(255,255,255,.1);color:#fff}
+.topnav-right{display:flex;align-items:center;gap:8px}
+.user-badge{background:rgba(255,255,255,.15);border-radius:20px;padding:4px 12px;font-size:8.5pt}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:8.5pt;cursor:pointer}
+.logout-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── PANELS ── */
+.panel{display:none;width:100%;max-width:1100px;flex-direction:column;align-items:center}
+.panel.active{display:flex}
+#wizardPanel{max-width:680px}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --blue:#000099;
+  --blue-light:#e8e8ff;
+  --blue-mid:#3333cc;
+  --green:#006633;
+  --green-light:#e6f4ec;
+  --gray:#f5f5f7;
+  --border:#ccd;
+  --text:#000;
+  --muted:#666;
+  --radius:10px;
+}
+
+body{
+  font-family:'Hanuman','Khmer OS','Khmer OS System',serif;
+  background:linear-gradient(135deg,#eef 0%,#e8e8ff 100%);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 16px 60px;
+  color:var(--text);
+}
+
+/* APP SHELL */
+.app{width:100%;max-width:680px}
+
+/* PROGRESS */
+.progress-bar{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+}
+.step-dot{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid var(--border);
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11pt;font-weight:700;color:var(--muted);
+  cursor:pointer;transition:all .2s;
+  flex-shrink:0;
+}
+.step-dot.done{background:var(--blue);border-color:var(--blue);color:#fff}
+.step-dot.active{background:var(--blue-mid);border-color:var(--blue-mid);color:#fff;box-shadow:0 0 0 4px rgba(0,0,153,.18)}
+.step-dot:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:0 4px 24px rgba(0,0,100,.12);
+  padding:28px 28px 24px;
+  margin-bottom:16px;
+}
+
+.step-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+  border-bottom:2px solid var(--blue-light);
+  padding-bottom:14px;
+}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13pt;font-weight:700;flex-shrink:0;
+}
+.step-title{font-size:13pt;font-weight:700;color:var(--blue)}
+.step-sub{font-size:9pt;color:var(--muted);margin-top:2px}
+
+/* FORM FIELDS */
+.field{margin-bottom:16px}
+.field label{
+  display:block;
+  font-size:9pt;
+  font-weight:700;
+  color:var(--blue);
+  margin-bottom:5px;
+}
+.field input[type=text],
+.field textarea,
+.field select{
+  width:100%;
+  border:1.5px solid var(--border);
+  border-radius:7px;
+  padding:9px 12px;
+  font-family:inherit;
+  font-size:10pt;
+  color:#000;
+  background:#fff;
+  outline:none;
+  transition:border-color .2s;
+}
+.field input[type=text]:focus,
+.field textarea:focus,
+.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,0,153,.1)}
+.field textarea{resize:vertical;min-height:72px}
+
+/* FIELD GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0 10px}
+
+/* INLINE FIELDS (label + short input on one row) */
+.inline-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin-bottom:14px}
+.inline-row .ifield{display:flex;align-items:baseline;gap:5px}
+.inline-row .ifield span{font-size:9pt;color:var(--blue);white-space:nowrap}
+.inline-row .ifield input{
+  border:none;border-bottom:1.5px solid var(--blue);
+  border-radius:0;
+  padding:2px 4px;
+  font-family:inherit;font-size:10pt;
+  color:var(--text);background:transparent;
+  outline:none;
+}
+
+/* CHECKBOX GROUP */
+.cb-group{
+  display:flex;flex-wrap:wrap;gap:8px 14px;
+  margin-top:6px;
+}
+.cb-item{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 12px;
+  border:1.5px solid var(--border);
+  border-radius:7px;
+  cursor:pointer;
+  font-size:9.5pt;
+  transition:all .2s;
+  background:#fff;
+}
+.cb-item:hover{border-color:var(--blue);background:var(--blue-light)}
+.cb-item.checked{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:700}
+.cb-item input{accent-color:var(--blue);width:14px;height:14px}
+
+/* RADIO GROUP (sex, yes/no) */
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.radio-item{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 16px;
+  border:1.5px solid var(--border);
+  border-radius:7px;
+  cursor:pointer;font-size:10pt;
+  transition:all .2s;background:#fff;
+}
+.radio-item:hover{border-color:var(--blue);background:var(--blue-light)}
+.radio-item.selected{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:700}
+.radio-item input{display:none}
+
+/* HINT */
+.hint{font-size:8pt;color:var(--muted);margin-top:3px}
+
+/* SECTION TITLE inside card */
+.sec-title{
+  font-size:10pt;font-weight:700;color:var(--blue);
+  border-left:3px solid var(--blue);padding-left:8px;
+  margin:18px 0 10px;
+}
+.sec-title:first-child{margin-top:0}
+
+/* NAV BUTTONS */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.btn{
+  padding:11px 28px;border:none;border-radius:8px;
+  font-family:inherit;font-size:10.5pt;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.btn-prev{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.btn-prev:hover{background:var(--blue-light)}
+.btn-next{background:var(--blue);color:#fff}
+.btn-next:hover{background:var(--blue-mid)}
+.btn-print{background:var(--green);color:#fff;padding:11px 32px}
+.btn-print:hover{background:var(--green-light);color:var(--green)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* PROGRESS TEXT */
+.prog-text{font-size:9pt;color:var(--muted);text-align:center;margin-bottom:10px}
+
+/* REVIEW CARD */
+.review-section{margin-bottom:16px}
+.review-section h3{font-size:10pt;font-weight:700;color:var(--blue);margin-bottom:8px;border-bottom:1px solid var(--blue-light);padding-bottom:4px}
+.review-row{display:flex;gap:8px;margin-bottom:4px;font-size:9pt}
+.review-key{color:var(--muted);white-space:nowrap;min-width:130px}
+.review-val{color:#000;font-weight:700;word-break:break-word}
+
+
+/* SUBMIT BUTTON */
+.btn-submit{background:#cc6600;color:#fff;padding:11px 28px}
+.btn-submit:hover{background:#aa5500}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+
+/* MODAL OVERLAY */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+}
+.modal{
+  background:#fff;border-radius:12px;padding:28px 28px 22px;
+  max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.25);
+  text-align:center;
+}
+.modal .icon{font-size:40px;margin-bottom:12px}
+.modal h3{font-size:12pt;font-weight:700;color:var(--blue);margin-bottom:8px}
+.modal p{font-size:9.5pt;color:var(--muted);margin-bottom:18px;line-height:1.6}
+.modal-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{
+  width:32px;height:32px;border:3px solid #eee;
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin:0 auto 12px;
+}
+
+/* STATUS BADGE on review */
+.status-badge{
+  display:inline-block;padding:4px 12px;border-radius:20px;
+  font-size:8.5pt;font-weight:700;margin-bottom:12px;
+}
+.status-badge.pending{background:#fff3cd;color:#856404;border:1px solid #ffc107}
+.status-badge.submitted{background:#d1e7dd;color:#0a3622;border:1px solid #198754}
+
+/* SCRIPT URL input */
+.url-field{
+  width:100%;border:1.5px solid var(--border);border-radius:7px;
+  padding:8px 10px;font-size:8.5pt;color:#000;
+  font-family:monospace;margin:8px 0;
+}
+/* PRINT PREVIEW note */
+.note-box{
+  background:var(--green-light);border:1.5px solid #006633;
+  border-radius:8px;padding:12px 16px;
+  font-size:9pt;color:var(--green);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.note-box .icon{font-size:18px}
+
+
+/* ── ADMIN PANEL STYLES ── */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#000099;--green:#006633;--red:#cc0000;--border:#dde;--muted:#666;--radius:8px}
+body{font-family:'Hanuman','Khmer OS','Khmer OS System',serif;background:#eef;min-height:100vh;padding:20px 16px;color:#111}
+.app{max-width:1100px;margin:0 auto}
+
+/* HEADER */
+.topbar{
+  background:var(--blue);color:#fff;border-radius:var(--radius);
+  padding:16px 22px;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.topbar h1{font-size:12pt;font-weight:700}
+.topbar p{font-size:8.5pt;opacity:.8;margin-top:2px}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--radius);box-shadow:0 2px 12px rgba(0,0,100,.1);padding:20px 22px;margin-bottom:16px}
+
+/* STATS ROW */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border-radius:var(--radius);padding:14px 16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,100,.08)}
+.stat .num{font-size:20pt;font-weight:700;color:var(--blue);display:block}
+.stat .lbl{font-size:8pt;color:var(--muted);margin-top:2px}
+
+/* CONTROLS */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.controls input,.controls select{
+  border:1.5px solid var(--border);border-radius:6px;
+  padding:7px 10px;font-family:inherit;font-size:9pt;
+  color:#111;background:#fff;outline:none;
+}
+.controls input{flex:1;min-width:160px}
+.btn{padding:8px 18px;border:none;border-radius:6px;font-family:inherit;font-size:9pt;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-gray{background:#eee;color:#333;border:1px solid var(--border)}
+
+/* URL CONFIG */
+.url-field{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:8px 10px;font-family:monospace;font-size:8.5pt;color:#111;margin:6px 0}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:8pt;min-width:900px}
+thead tr{background:var(--blue);color:#fff;position:sticky;top:0}
+thead th{padding:8px 10px;text-align:left;font-weight:700;white-space:nowrap}
+tbody tr{border-bottom:1px solid #eef}
+tbody tr:nth-child(even){background:#f7f7ff}
+tbody tr:hover{background:#e8e8ff}
+tbody td{padding:7px 10px;vertical-align:top;word-break:break-word;max-width:160px}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:7.5pt;font-weight:700}
+.badge-h{background:#ffe0e0;color:#900}
+.badge-c{background:#e0f0e0;color:#060}
+
+/* LOADING / EMPTY */
+.msg{text-align:center;padding:40px;color:var(--muted);font-size:10pt}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid #dde;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+
+/* DETAIL MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.detail{background:#fff;border-radius:10px;padding:24px;max-width:640px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.detail h2{font-size:11pt;font-weight:700;color:var(--blue);margin-bottom:14px;border-bottom:2px solid #eef;padding-bottom:8px}
+.det-sec h3{font-size:9pt;font-weight:700;color:var(--blue);margin:12px 0 6px;background:#f0f0ff;padding:4px 8px;border-radius:4px}
+.det-row{display:flex;gap:8px;margin-bottom:4px;font-size:8.5pt}
+.det-key{color:var(--muted);min-width:140px;flex-shrink:0}
+.det-val{color:#111;font-weight:700;word-break:break-word}
+
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal{background:#fff;border-radius:12px;padding:28px 28px 22px;
+  max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.25);text-align:center}
+.modal .icon{font-size:40px;margin-bottom:12px}
+.modal h3{font-size:12pt;font-weight:700;color:var(--blue);margin-bottom:8px}
+.modal p{font-size:9.5pt;color:var(--muted);margin-bottom:18px;line-height:1.6}
+.modal-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:32px;height:32px;border:3px solid #eee;border-top-color:var(--blue);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+.status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:8.5pt;font-weight:700;margin-bottom:12px}
+.status-badge.submitted{background:#d1e7dd;color:#0a3622;border:1px solid #198754}
+.url-field{width:100%;border:1.5px solid var(--border);border-radius:7px;
+  padding:8px 10px;font-size:8.5pt;color:#000;font-family:monospace;margin:8px 0}
+
+/* ── SETTINGS ── */
+.settings-card{background:#fff;border-radius:var(--radius);box-shadow:0 2px 12px rgba(0,0,100,.1);
+  padding:24px;margin-bottom:14px;width:100%}
+.settings-card h3{font-size:10.5pt;font-weight:700;color:var(--blue);margin-bottom:14px;
+  border-bottom:2px solid var(--blue-light);padding-bottom:8px}
+.setting-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.setting-row label{font-size:9pt;color:var(--muted);min-width:160px}
+.setting-row input{flex:1;min-width:200px;border:1.5px solid var(--border);border-radius:6px;
+  padding:7px 10px;font-family:monospace;font-size:8.5pt;color:#000;outline:none}
+.setting-row input:focus{border-color:var(--blue)}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOCK SCREEN ══════════════ -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-logo">🏥</div>
+    <div class="lock-title">ប្រព័ន្ធលិខិតបញ្ជូន</div>
+    <div class="lock-sub">មន្ទីរពេទ្យខេត្តកំពង់ឆ្នាំង</div>
+
+    <div class="lock-tabs">
+      <button class="lock-tab active" onclick="selectRole('user',this)">👤 បុគ្គលិក</button>
+      <button class="lock-tab" onclick="selectRole('admin',this)">🔑 អ្នកគ្រប់គ្រង</button>
+    </div>
+
+    <input class="lock-input" id="pinInput" type="password" maxlength="6"
+      placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lock-btn" onclick="doLogin()">ចូលប្រព័ន្ធ</button>
+    <div class="lock-err" id="lockErr"></div>
+  </div>
+</div>
+
+<!-- ══════════════ APP WRAPPER ══════════════ -->
+<div id="appWrapper">
+
+  <!-- Top nav -->
+  <div class="topnav" id="topnav">
+    <div class="topnav-left">
+      <div>
+        <div class="topnav-h1" style="font-size:10.5pt;font-weight:700">🏥 ប្រព័ន្ធលិខិតបញ្ជូន</div>
+      </div>
+      <div class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" onclick="switchPanel('wizard',this)">📝 បំពេញទម្រង់</button>
+        <button class="nav-tab" id="adminTabBtn" onclick="switchPanel('admin',this)" style="display:none">📊 Admin</button>
+        <button class="nav-tab" id="settingsTabBtn" onclick="switchPanel('settings',this)" style="display:none">⚙️ កំណត់</button>
+      </div>
+    </div>
+    <div class="topnav-right">
+      <span class="user-badge" id="userBadge"></span>
+      <button class="logout-btn" onclick="doLogout()">ចាកចេញ</button>
+    </div>
+  </div>
+
+  <!-- ── WIZARD PANEL ── -->
+  <div class="panel active" id="wizardPanel">
+    <div class="progress-bar" id="dots"></div>
+    <div class="prog-text" id="progText"></div>
+    <div id="stepsContainer"></div>
+    <div class="card" style="padding:16px 28px;width:100%">
+      <div class="nav">
+        <button class="btn btn-prev" id="btnPrev" onclick="navigate(-1)">← ត្រឡប់</button>
+        <button class="btn btn-next" id="btnNext" onclick="navigate(1)">បន្ត →</button>
+        <div id="lastBtns" style="display:none;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-submit" id="btnSubmit" onclick="submitToSheets()">📤 ដាក់ស្នើ</button>
+          <button class="btn btn-print" id="btnPrint" onclick="printForm()">🖨️ បោះពុម្ព</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADMIN PANEL ── -->
+  <div class="panel" id="adminPanel" style="max-width:1100px">
+    <div style="width:100%">
+      <div class="stats" id="stats" style="display:none">
+        <div class="stat"><span class="num" id="statTotal">0</span><span class="lbl">ករណីសរុប</span></div>
+        <div class="stat"><span class="num" id="statToday">0</span><span class="lbl">ថ្ងៃនេះ</span></div>
+        <div class="stat"><span class="num" id="statHosp">0</span><span class="lbl">មន្ទីរពេទ្យ</span></div>
+        <div class="stat"><span class="num" id="statHealth">0</span><span class="lbl">មណ្ឌលសុខភាព</span></div>
+      </div>
+      <div class="card" id="ctrlCard">
+        <div class="controls">
+          <input type="text" id="search" placeholder="ស្វែងរក (ឈ្មោះ, ស្ថានីយ ...)" oninput="filterTable()">
+          <select id="filterFac" onchange="filterTable()">
+            <option value="">ប្រភេទទាំងអស់</option>
+            <option value="មន្ទីរពេទ្យបង្អែក">មន្ទីរពេទ្យបង្អែក</option>
+            <option value="មណ្ឌលសុខភាព">មណ្ឌលសុខភាព</option>
+          </select>
+          <button class="btn btn-blue" onclick="loadData()">🔄 ទាញទិន្នន័យ</button>
+          <button class="btn btn-green" onclick="exportCSV()">📥 CSV</button>
+        </div>
+        <div id="tableArea"><div class="msg">ចុច "ទាញទិន្នន័យ" ដើម្បីបង្ហាញ</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS PANEL ── -->
+  <div class="panel" id="settingsPanel" style="max-width:680px">
+    <div class="settings-card" style="width:100%">
+      <h3>⚙️ ការកំណត់ប្រព័ន្ធ</h3>
+
+      <div class="setting-row">
+        <label>Google Apps Script URL</label>
+        <input type="text" id="settingUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div class="setting-row">
+        <label>លេខសម្ងាត់បុគ្គលិក (User PIN)</label>
+        <input type="password" id="settingUserPin" placeholder="PIN បច្ចុប្បន្ន">
+      </div>
+      <div class="setting-row">
+        <label>លេខសម្ងាត់អ្នកគ្រប់គ្រង (Admin PIN)</label>
+        <input type="password" id="settingAdminPin" placeholder="PIN បច្ចុប្បន្ន">
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-blue" onclick="saveSettings()">💾 រក្សាទុក</button>
+        <button class="btn btn-gray" onclick="loadSettingsFields()">↺ បោះបង់</button>
+      </div>
+      <div id="settingMsg" style="margin-top:10px;font-size:9pt;color:var(--green)"></div>
+    </div>
+
+    <div class="settings-card" style="width:100%">
+      <h3>ℹ️ ណែនាំ</h3>
+      <p style="font-size:9pt;color:var(--muted);line-height:1.8">
+        ១. បង្កើត Google Sheet → ចម្លង Spreadsheet ID<br>
+        ២. បើក <a href="https://script.google.com" target="_blank" style="color:var(--blue)">script.google.com</a> → New Project → Paste Apps Script<br>
+        ៣. Deploy → Web App (Anyone) → ចម្លង URL<br>
+        ៤. ដាក់ URL ខាងលើ → រក្សាទុក<br>
+        ៥. PIN លំនាំដើម: <strong>User = 1234</strong> &nbsp;|&nbsp; <strong>Admin = 9999</strong>
+      </p>
+    </div>
+  </div>
+
+</div><!-- /appWrapper -->
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Detail modal -->
+<div class="overlay" id="detailOverlay" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="detail" id="detailContent"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+let currentRole = 'user';
+let USER_PIN  = localStorage.getItem('ref_user_pin')  || '1234';
+let ADMIN_PIN = localStorage.getItem('ref_admin_pin') || '9999';
+
+function selectRole(role, el){
+  currentRole = role;
+  document.querySelectorAll('.lock-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('lockErr').textContent='';
+  document.getElementById('pinInput').value='';
+  document.getElementById('pinInput').focus();
+}
+
+function doLogin(){
+  const pin = document.getElementById('pinInput').value.trim();
+  const err = document.getElementById('lockErr');
+  if(currentRole==='user' && pin===USER_PIN){
+    enterApp('user');
+  } else if(currentRole==='admin' && pin===ADMIN_PIN){
+    enterApp('admin');
+  } else {
+    err.textContent='PIN មិនត្រូវ — សូមព្យាយាមម្ដងទៀត';
+    document.getElementById('pinInput').value='';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+function enterApp(role){
+  document.getElementById('lockScreen').style.display='none';
+  const wrap = document.getElementById('appWrapper');
+  wrap.style.display='flex';
+  document.getElementById('userBadge').textContent = role==='admin' ? '🔑 Admin' : '👤 បុគ្គលិក';
+  if(role==='admin'){
+    document.getElementById('adminTabBtn').style.display='';
+    document.getElementById('settingsTabBtn').style.display='';
+  }
+  // Reset body layout for app
+  document.body.style.background='linear-gradient(135deg,#eef 0%,#e8e8ff 100%)';
+  document.body.style.justifyContent='flex-start';
+
+  // Init wizard
+  initWizard();
+}
+
+function doLogout(){
+  location.reload();
+}
+
+// ══════════════════════════════════════════════════
+// PANEL SWITCHING
+// ══════════════════════════════════════════════════
+function switchPanel(name, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(name+'Panel').classList.add('active');
+  el.classList.add('active');
+  if(name==='settings') loadSettingsFields();
+}
+
+// ══════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════
+function loadSettingsFields(){
+  document.getElementById('settingUrl').value     = localStorage.getItem('referral_sheets_url')||''
+  document.getElementById('settingUserPin').value  = USER_PIN;
+  document.getElementById('settingAdminPin').value = ADMIN_PIN;
+}
+function saveSettings(){
+  const url  = document.getElementById('settingUrl').value.trim();
+  const upin = document.getElementById('settingUserPin').value.trim();
+  const apin = document.getElementById('settingAdminPin').value.trim();
+  if(url)  { SHEETS_URL=url; localStorage.setItem('referral_sheets_url',url); }
+  if(upin) { USER_PIN=upin;  localStorage.setItem('ref_user_pin',upin); }
+  if(apin) { ADMIN_PIN=apin; localStorage.setItem('ref_admin_pin',apin); }
+  document.getElementById('settingMsg').textContent='✓ រក្សាទុករួចហើយ';
+  setTimeout(()=>document.getElementById('settingMsg').textContent='',2500);
+}
+
+// ══════════════════════════════════════════════════
+// WIZARD CODE (from referral-wizard.html)
+// ══════════════════════════════════════════════════
+function initWizard(){ renderDots(); renderStep(current); renderNav(); }
+
+
+// ═══════════════════════════════════════════
+// DATA MODEL
+// ═══════════════════════════════════════════
+const D = {
+  // Step 1: Facility info
+  fac_hospital:false, fac_health_center:false,
+  facility:'', refer_to:'', refer_tel:'', refer_hr:'', refer_min:'',
+  ref_no:'', pt_code:'',
+
+  // Step 2: Patient
+  name:'', sex:'', dob:'', nat:'', phone:'',
+  village:'', commune:'', district:'', province:'',
+  occ:'', org:'', id_no:'',
+  guardian:'', relation:'', emg_tel:'',
+  day:'', month:'', year:'', hr:'', min:'',
+
+  // Step 3: Clinical
+  chief_complaint:'', history:'', physical_exam:'',
+  tests:'', test_notdone:false,
+  diagnosis:'',
+  meds:'', meds2:'', meds3:'', meds4:'', meds_none:false,
+  interv:'', interv_none:false,
+
+  // Step 4: Vitals + Reason
+  hr_v:'', bp:'', rr:'', temp:'', spo2:'',
+  r1:false, r2:false, r3:false, r4:false,
+  r5:false, r6:false, r7:false, r8:false, r_other:'',
+
+  // Step 5: Obstetric
+  g:'', p:'', a:'', ga:'', edd:'', compl:'',
+  rup_y:false, rup_hr:'', rup_n:false, present:'',
+  ab_y:false, ab_n:false,
+  dx_y:false, dx_n:false,
+  sh_y:false, sh_n:false,
+
+  // Step 6: Paediatric
+  bwt:'', gest:'', delmod:'', cwt:'',
+  wt5:'',
+  waz1:false, waz2:false, waz3:false,
+  ht:'', sd:'',
+  ed_y:false, ed_n:false,
+  mam_y:false, mam_n:false,
+
+  // Step 7: Signature
+  s1_provider:'', s1_tel:'', s1_date:'', s1_hr:'', s1_min:'',
+  s2_recv:'', s2_tel:'', s2_date:'', s2_hr:'', s2_min:'',
+};
+
+// ═══════════════════════════════════════════
+// STEPS DEFINITION
+// ═══════════════════════════════════════════
+const STEPS = [
+  {
+    title:'ព័ត៌មានមូលដ្ឋានសុខាភិបាល',
+    sub:'',
+    render: () => `
+      <div class="sec-title">ប្រភេទស្ថានីយ</div>
+      <div class="cb-group">
+        ${cbItem('fac_hospital','មន្ទីរពេទ្យបង្អែក')}
+        ${cbItem('fac_health_center','មណ្ឌលសុខភាព')}
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label>ឈ្មោះស្ថានីយ</label>
+        ${inp('facility','ឈ្មោះមន្ទីរ/មណ្ឌល...')}
+      </div>
+      <div class="sec-title">ទិសដៅបញ្ជូន</div>
+      <div class="field">
+        <label>បញ្ជូនទៅកាន់</label>
+        ${inp('refer_to','ឈ្មោះស្ថានីយទទួល...')}
+      </div>
+      <div class="grid3">
+        <div class="field" style="grid-column:1/span 2">
+          <label>លេខទំនាក់ទំនង</label>
+          ${inp('refer_tel','ទូរស័ព្ទ...')}
+        </div>
+        <div class="field">
+          <label>ម៉ោង</label>
+          <div style="display:flex;gap:6px">
+            ${inp('refer_hr','ម៉ោង','width:50%')}
+            ${inp('refer_min','នាទី','width:50%')}
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>លេខរៀងៈ</label>${inp('ref_no','...')}</div>
+        <div class="field"><label>លេខកូដអ្នកជំងឺៈ</label>${inp('pt_code','...')}</div>
+      </div>
+    `
+  },
+  {
+    title:'ព័ត៌មានអ្នកជំងឺ',
+    sub:'ឈ្មោះ អាសយដ្ឋាន អ្នកថែទាំ',
+    render: () => `
+      <div class="sec-title">ព័ត៌មានផ្ទាល់ខ្លួន</div>
+      <div class="field"><label>ឈ្មោះអ្នកជំងឺ</label>${inp('name','ឈ្មោះពេញ...')}</div>
+      <div class="grid3">
+        <div class="field">
+          <label>ភេទ</label>
+          <div class="radio-group" style="margin-top:0">
+            ${radio('sex','ប្រុស','ប្រុស')}
+            ${radio('sex','ស្រី','ស្រី')}
+          </div>
+        </div>
+        <div class="field">
+          <label>ថ្ងៃខែឆ្នាំកំណើត</label>
+          <input type="date" name="dob" value="${D.dob||''}"
+            style="width:100%;border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-family:inherit;font-size:10pt;color:#000;background:#fff;outline:none"
+            oninput="D.dob=this.value;updateAge()"
+            onchange="D.dob=this.value;updateAge()">
+          <div id="age_display" class="hint" style="margin-top:4px;color:var(--blue);font-weight:700"></div>
+        </div>
+        <div class="field"><label>សញ្ជាតិ</label>${inp('nat','...')}</div>
+      </div>
+      <div class="field"><label>ទូរស័ព្ទលេខ</label>${inp('phone','...')}</div>
+
+      <div class="sec-title">អាសយដ្ឋាន</div>
+      <div class="grid2">
+        <div class="field"><label>ភូមិ</label>${inp('village','...')}</div>
+        <div class="field"><label>ឃុំ/សង្កាត់</label>${inp('commune','...')}</div>
+        <div class="field"><label>ស្រុក/ខណ្ឌ</label>${inp('district','...')}</div>
+        <div class="field"><label>ខេត្ត/ក្រុង</label>${inp('province','...')}</div>
+      </div>
+
+      <div class="sec-title">ការងារ</div>
+      <div class="grid2">
+        <div class="field"><label>មុខរបរ</label>${inp('occ','...')}</div>
+        <div class="field"><label>អង្គភាព</label>${inp('org','...')}</div>
+      </div>
+      <div class="field"><label>លេខអត្តសញ្ញាណបណ្ណ ឬ លេខលិខិតឆ្លងដែន</label>${inp('id_no','...')}</div>
+
+      <div class="sec-title">អ្នកថែទាំ</div>
+      <div class="grid2">
+        <div class="field"><label>ឈ្មោះអាណាព្យាបាល ឬ អ្នកកំដរ</label>${inp('guardian','...')}</div>
+        <div class="field"><label>ត្រូវជា</label>${inp('relation','ប្តី/ប្រពន្ធ...')}</div>
+      </div>
+      <div class="field"><label>លេខទូរស័ព្ទទំនាក់ទំនងបន្ទាន់</label>${inp('emg_tel','...')}</div>
+
+      <div class="sec-title">ថ្ងៃចូលព្យាបាល</div>
+      <div class="grid4">
+        <div class="field"><label>ថ្ងៃ</label>${inp('day','DD')}</div>
+        <div class="field"><label>ខែ</label>${inp('month','MM')}</div>
+        <div class="field"><label>ឆ្នាំ</label>${inp('year','YYYY')}</div>
+        <div class="field"><label>ម៉ោង</label>
+          <div style="display:flex;gap:4px">${inp('hr','hh','width:50%')} ${inp('min','mm','width:50%')}</div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'ព័ត៌មានគ្លីនិក',
+    sub:'សញ្ញា រោគ ការព្យាបាល',
+    render: () => `
+      <div class="field"><label>សញ្ញាតម្អូញៈ</label>${ta('chief_complaint','...')}</div>
+      <div class="field"><label>ប្រវត្តិសំខាន់ៈ</label>${ta('history','...')}</div>
+      <div class="field"><label>លទ្ធផលពិនិត្យរាងកាយខុសប្រក្រតីៈ</label>${ta('physical_exam','...')}</div>
+      <div class="field">
+        <label>លទ្ធផលតេស្តៈ</label>
+        ${inp('tests','...')}
+        <div class="cb-group" style="margin-top:8px">
+          ${cbItem('test_notdone','មិនបានធ្វើ')}
+        </div>
+      </div>
+      <div class="field"><label>រោគវិនិច្ឆ័យបឋមៈ</label>${ta('diagnosis','...')}</div>
+      <div class="field">
+        <label>ឱសថដែលបានផ្តល់អោយៈ</label>
+        ${inp('meds','...')}
+        ${inp('meds2','...','margin-top:6px')}
+        ${inp('meds3','...','margin-top:6px')}
+        ${inp('meds4','...','margin-top:6px')}
+        <div class="cb-group" style="margin-top:8px">
+          ${cbItem('meds_none','គ្មាន')}
+        </div>
+      </div>
+      <div class="field">
+        <label>អន្តរាគមន៍ផ្សេងទៀតៈ</label>
+        ${inp('interv','...')}
+        <div class="cb-group" style="margin-top:8px">
+          ${cbItem('interv_none','គ្មាន')}
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'សញ្ញាជីវិត និង មូលហេតុ',
+    sub:'Vitals & មូលហេតុបញ្ជូន',
+    render: () => `
+      <div class="sec-title">សញ្ញាជីវិតថ្មីៗ</div>
+      <div class="grid3">
+        <div class="field"><label>ចង្វាក់បេះដូងៈ</label>${inp('hr_v','ដ/នាទី')}</div>
+        <div class="field"><label>សម្ពាធឈាមៈ</label>${inp('bp','mmHg')}</div>
+        <div class="field"><label>ចង្វាក់ដង្ហើមៈ</label>${inp('rr','ដ/នាទី')}</div>
+        <div class="field"><label>កំដៅៈ</label>${inp('temp','°C')}</div>
+        <div class="field"><label>កំហាប់អុកស៊ីសែនៈ</label>${inp('spo2','%')}</div>
+      </div>
+
+      <div class="sec-title">មូលហេតុបញ្ជូន</div>
+      <div class="cb-group">
+        ${cbItem('r1','ថ្នាក់ខ្ពស់')}
+        ${cbItem('r2','អ្នកឯកទេស')}
+        ${cbItem('r3','ពិសោធន៍')}
+        ${cbItem('r4','វះកាត់')}
+        ${cbItem('r5','ICU')}
+        ${cbItem('r6','Imaging')}
+        ${cbItem('r7','សំណើអ្នកជំងឺ')}
+        ${cbItem('r8','ផ្សេងៗ')}
+      </div>
+      <div class="field" style="margin-top:10px" id="r_other_field" style="display:none">
+        <label>ផ្សេងៗ (បញ្ជាក់):</label>
+        ${inp('r_other','...')}
+      </div>
+    `
+  },
+  {
+    title:'ស្ត្រីមានផ្ទៃពោះ',
+    sub:'ព័ត៌មានស្ត្រីមានផ្ទៃពោះ/ទើបសម្រាល',
+    render: () => `
+      <div class="hint" style="margin-bottom:14px">បំពេញតែក្នុងករណីជំងឺស្ត្រី — បើមិនពាក់ព័ន្ធ ចុច "បន្ត"</div>
+      <div class="grid3">
+        <div class="field"><label>ចំនួនផ្ទៃពោះ</label>${inp('g','...')}</div>
+        <div class="field"><label>ចំនួនសម្រាលៈ</label>${inp('p','...')}</div>
+        <div class="field"><label>ចំនួនរលូត/រំលូតៈ</label>${inp('a','...')}</div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>អាយុគភ៌ៈ (សប្តាហ៍)</label>${inp('ga','...')}</div>
+        <div class="field"><label>ថ្ងៃសម្រាលរំពឹងទុកៈ</label>${inp('edd','DD/MM/YYYY')}</div>
+      </div>
+      <div class="field"><label>ផលវិបាកផ្សេងៗ</label>${inp('compl','...')}</div>
+
+      <div class="field">
+        <label>បែកទឹកភ្លោះឬអត់ៈ</label>
+        <div class="radio-group" style="margin-top:6px;flex-wrap:wrap;gap:8px">
+          ${radio('rup','បែក','rup_y')}
+          ${radio('rup','ទេ','rup_n')}
+        </div>
+        <div id="rup_time_field" style="margin-top:8px;display:none">
+          <div class="field"><label>នៅម៉ោងៈ</label>${inp('rup_hr','ម៉ោង')}</div>
+        </div>
+      </div>
+
+      <div class="field"><label>ទម្រង់បង្ហាញនៃគភ៌ៈ</label>${inp('present','...')}</div>
+
+      <div class="field">
+        <label>ប្រើអង់ទីប៊ីយ៉ូទិកពេលសម្រាលៈ</label>
+        <div class="radio-group" style="margin-top:6px">
+          ${radio('ab','បាទ/ចាស','ab_y')}
+          ${radio('ab','ទេ','ab_n')}
+        </div>
+      </div>
+      <div class="field">
+        <label>ប្រើថ្នាំ Dexamethasone:</label>
+        <div class="radio-group" style="margin-top:6px">
+          ${radio('dx','បាទ/ចាស','dx_y')}
+          ${radio('dx','ទេ','dx_n')}
+        </div>
+      </div>
+      <div class="field">
+        <label>ប្រើខោបន្ថយស្ហុកៈ</label>
+        <div class="radio-group" style="margin-top:6px">
+          ${radio('sh','បាទ/ចាស','sh_y')}
+          ${radio('sh','ទេ','sh_n')}
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'ទារក / កុមារ',
+    sub:'ទារកអាយុក្រោម ៦សប្តាហ៍ / កុមារអាយុក្រោម ៥ឆ្នាំ',
+    render: () => `
+      <div class="hint" style="margin-bottom:14px">បំពេញតែក្នុងករណីជំងឺកុមារ — បើមិនពាក់ព័ន្ធ ចុច "បន្ត"</div>
+
+      <div class="sec-title">ទារកអាយុក្រោម ៦សប្តាហ៍</div>
+      <div class="grid2">
+        <div class="field"><label>ទម្ងន់ពេលសម្រាលៈ (គក្រ)</label>${inp('bwt','...')}</div>
+        <div class="field"><label>អាយុគភ៌ពេលសម្រាលៈ (សប្តាហ៍)</label>${inp('gest','...')}</div>
+      </div>
+      <div class="field"><label>វិធីសម្រាលៈ</label>${inp('delmod','...')}</div>
+      <div class="field"><label>ទម្ងន់បច្ចុប្បន្នៈ (គក្រ)</label>${inp('cwt','...')}</div>
+
+      <div class="sec-title">កុមារអាយុក្រោម ៥ឆ្នាំ</div>
+      <div class="field"><label>ទម្ងន់បច្ចុប្បន្នៈ (គក្រ)</label>${inp('wt5','...')}</div>
+      <div class="field">
+        <label>ទម្ងន់ធៀបនឹងអាយុៈ</label>
+        <div class="cb-group" style="margin-top:6px">
+          ${cbItem('waz1','បៃតង')}
+          ${cbItem('waz2','ទឹកក្រូច')}
+          ${cbItem('waz3','ក្រហម')}
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>កម្ពស់ (ស.ម)</label>${inp('ht','...')}</div>
+        <div class="field"><label>ទម្ងន់ធៀបនឹងកម្ពស់ SD</label>${inp('sd','...')}</div>
+      </div>
+      <div class="field">
+        <label>ហើមជើងទាំងពីរ</label>
+        <div class="radio-group" style="margin-top:6px">
+          ${radio('ed','ហើម','ed_y')}
+          ${radio('ed','ទេ','ed_n')}
+        </div>
+      </div>
+      <div class="field">
+        <label>មានបញ្ហាកង្វះអាហារូបត្ថម្ភ</label>
+        <div class="radio-group" style="margin-top:6px">
+          ${radio('mam','មាន','mam_y')}
+          ${radio('mam','គ្មាន','mam_n')}
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'ហត្ថលេខា',
+    sub:'ព័ត៌មានអ្នកបញ្ជូន និង ម្ចាស់ស្ថានីយទទួល',
+    render: () => `
+      <div class="sec-title">មូលដ្ឋានផ្តល់សេវាដែលបញ្ជូនៈ</div>
+      <div class="field"><label>អ្នកផ្តល់សេវាដែលបញ្ជូនៈ</label>${inp('s1_provider','ឈ្មោះ...')}</div>
+      <div class="field"><label>លេខទូរស័ព្ទអ្នកផ្តល់សេវាបញ្ជូនៈ</label>${inp('s1_tel','...')}</div>
+      <div class="grid3">
+        <div class="field" style="grid-column:1/span 2"><label>កាលបរិច្ឆេទបញ្ជូនៈ</label>${inp('s1_date','DD/MM/YYYY')}</div>
+        <div class="field"><label>ម៉ោង</label>
+          <div style="display:flex;gap:4px">${inp('s1_hr','hh','width:50%')}${inp('s1_min','mm','width:50%')}</div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:20px">មូលដ្ឋានសុខាភិបាលទទួលៈ</div>
+      <div class="field"><label>អ្នកផ្តល់សេវាដែលទទួលៈ</label>${inp('s2_recv','ឈ្មោះ...')}</div>
+      <div class="field"><label>លេខទូរស័ព្ទអ្នកផ្តល់សេវាទទួលៈ</label>${inp('s2_tel','...')}</div>
+      <div class="grid3">
+        <div class="field" style="grid-column:1/span 2"><label>កាលបរិច្ឆេទមកដល់ៈ</label>${inp('s2_date','DD/MM/YYYY')}</div>
+        <div class="field"><label>ម៉ោង</label>
+          <div style="display:flex;gap:4px">${inp('s2_hr','hh','width:50%')}${inp('s2_min','mm','width:50%')}</div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title:'ត្រួតពិនិត្យ',
+    sub:'ពិនិត្យព័ត៌មានមុននឹងបោះពុម្ព',
+    render: () => buildReview()
+  }
+];
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function inp(name, ph='', style=''){
+  const v = D[name] || '';
+  return `<input type="text" name="${name}" value="${v}" placeholder="${ph}" ${style?`style="${style}"`:''}
+    oninput="D['${name}']=this.value" onchange="D['${name}']=this.value">`;
+}
+function ta(name, ph=''){
+  const v = D[name] || '';
+  return `<textarea name="${name}" placeholder="${ph}" oninput="D['${name}']=this.value">${v}</textarea>`;
+}
+function cbItem(key, label){
+  const checked = D[key] ? ' checked' : '';
+  const cls = D[key] ? ' checked' : '';
+  return `<label class="cb-item${cls}" id="cbl_${key}" onclick="toggleCb('${key}',this)">
+    <input type="checkbox"${checked}> ${label}
+  </label>`;
+}
+function radio(group, label, key){
+  const sel = D[key] ? ' selected' : '';
+  return `<label class="radio-item${sel}" id="rl_${key}" onclick="selectRadio('${group}','${key}',this)">
+    <input type="radio" name="${group}"> ${label}
+  </label>`;
+}
+function toggleCb(key, el){
+  D[key] = !D[key];
+  el.classList.toggle('checked', D[key]);
+  el.querySelector('input').checked = D[key];
+  // show/hide r_other
+  if(key==='r8'){
+    const f = document.getElementById('r_other_field');
+    if(f) f.style.display = D[key] ? 'block' : 'none';
+  }
+}
+function selectRadio(group, key, el){
+  // group mapping to keys
+  const groups = {
+    sex:['sex'], // handled specially below
+    rup:['rup_y','rup_n'], ab:['ab_y','ab_n'],
+    dx:['dx_y','dx_n'], sh:['sh_y','sh_n'],
+    ed:['ed_y','ed_n'], mam:['mam_y','mam_n'],
+  };
+  if(group === 'sex'){
+    D.sex = el.querySelector('input').value || key;
+    // The radio label text is the value
+    D.sex = el.textContent.trim();
+    document.querySelectorAll(`label.radio-item`).forEach(l=>{
+      if(l.querySelector(`input[name="sex"]`)) l.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    return;
+  }
+  const keys = groups[group] || [];
+  keys.forEach(k => {
+    D[k] = (k === key);
+    const rl = document.getElementById('rl_'+k);
+    if(rl) rl.classList.toggle('selected', D[k]);
+  });
+  // show rupture time
+  if(group==='rup'){
+    const rtf = document.getElementById('rup_time_field');
+    if(rtf) rtf.style.display = D['rup_y'] ? 'block' : 'none';
+  }
+}
+
+// ═══════════════════════════════════════════
+// REVIEW
+// ═══════════════════════════════════════════
+function rv(label, val){ return val ? `<div class="review-row"><span class="review-key">${label}</span><span class="review-val">${val}</span></div>` : ''; }
+function rvCb(label, keys, labels){
+  const sel = keys.map((k,i)=>D[k]?labels[i]:null).filter(Boolean).join(', ');
+  return sel ? rv(label, sel) : '';
+}
+function buildReview(){
+  return `
+  <div class="note-box"><span class="icon">✓</span>ព័ត៌មានត្រូវបានបំពេញ។ ចុច "ដាក់ស្នើ" ដើម្បីរក្សាទុកទិន្នន័យ ហើយ "បោះពុម្ព" ដើម្បីបោះពុម្ពទម្រង់។</div>
+  <div id="submitStatus"></div>
+  <div class="review-section">
+    <h3>ស្ថានីយ និង ទិសដៅ</h3>
+    ${rvCb('ប្រភេទ',['fac_hospital','fac_health_center'],['មន្ទីរពេទ្យបង្អែក','មណ្ឌលសុខភាព'])}
+    ${rv('ឈ្មោះស្ថានីយ',D.facility)} ${rv('បញ្ជូនទៅ',D.refer_to)}
+    ${rv('លេខទំនាក់ទំនង',D.refer_tel)} ${rv('ម៉ោង',D.refer_hr+(D.refer_min?':'+D.refer_min:''))}
+    ${rv('លេខរៀង',D.ref_no)} ${rv('លេខកូដ',D.pt_code)}
+  </div>
+  <div class="review-section">
+    <h3>អ្នកជំងឺ</h3>
+    ${rv('ឈ្មោះ',D.name)} ${rv('ភេទ',D.sex)} ${rv('ថ្ងៃខែឆ្នាំកំណើត',D.dob?new Date(D.dob).toLocaleDateString('km-KH',{day:'2-digit',month:'2-digit',year:'numeric'}):'')} ${rv('អាយុ',D.dob?calcAge(D.dob):'')} ${rv('ទូរស័ព្ទ',D.phone)}
+    ${rv('អាសយដ្ឋាន',[D.village,D.commune,D.district,D.province].filter(Boolean).join(', '))}
+    ${rv('ចូលព្យាបាល',[D.day,D.month,D.year].filter(Boolean).join('/')+ (D.hr?' ម៉ោង '+D.hr+(D.min?':'+D.min:''):''))}
+    ${rv('អ្នកថែទាំ',D.guardian)} ${rv('ត្រូវជា',D.relation)}
+  </div>
+  <div class="review-section">
+    <h3>គ្លីនិក</h3>
+    ${rv('សញ្ញាតម្អូញ',D.chief_complaint)} ${rv('ប្រវត្តិ',D.history)}
+    ${rv('ពិនិត្យ',D.physical_exam)} ${rv('តេស្ត',D.test_notdone?'មិនបានធ្វើ':D.tests)}
+    ${rv('រោគវិនិច្ឆ័យ',D.diagnosis)}
+    ${rv('ឱសថ',D.meds_none?'គ្មាន':[D.meds,D.meds2,D.meds3,D.meds4].filter(Boolean).join(' / '))}
+    ${rv('អន្តរាគមន៍',D.interv_none?'គ្មាន':D.interv)}
+  </div>
+  <div class="review-section">
+    <h3>សញ្ញាជីវិត</h3>
+    ${rv('HR',D.hr_v)} ${rv('BP',D.bp)} ${rv('RR',D.rr)} ${rv('Temp',D.temp)} ${rv('SpO₂',D.spo2)}
+  </div>
+  <div class="review-section">
+    <h3>មូលហេតុ</h3>
+    ${rvCb('',['r1','r2','r3','r4','r5','r6','r7','r8'],['ថ្នាក់ខ្ពស់','អ្នកឯកទេស','ពិសោធន៍','វះកាត់','ICU','Imaging','សំណើអ្នកជំងឺ','ផ្សេងៗ'])}
+    ${rv('ផ្សេងៗ',D.r_other)}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+let current = 0;
+const TOTAL = STEPS.length;
+
+function renderStep(idx){
+  const s = STEPS[idx];
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = `
+    <div class="card">
+      <div class="step-header">
+        <div class="step-num">${idx+1}</div>
+        <div><div class="step-title">${s.title}</div><div class="step-sub">${s.sub}</div></div>
+      </div>
+      ${s.render()}
+    </div>`;
+
+  // Restore radio selections after render
+  ['rup','ab','dx','sh','ed','mam'].forEach(g=>{
+    const map={rup:['rup_y','rup_n'],ab:['ab_y','ab_n'],dx:['dx_y','dx_n'],sh:['sh_y','sh_n'],ed:['ed_y','ed_n'],mam:['mam_y','mam_n']};
+    (map[g]||[]).forEach(k=>{
+      if(D[k]){const el=document.getElementById('rl_'+k);if(el)el.classList.add('selected');}
+    });
+  });
+  // Restore DOB age display
+  updateAge();
+  // Sex radio
+  document.querySelectorAll('label.radio-item').forEach(l=>{
+    if(l.querySelector('input[name="sex"]') && l.textContent.trim()===D.sex) l.classList.add('selected');
+  });
+  // Restore rup_time_field
+  const rtf = document.getElementById('rup_time_field');
+  if(rtf) rtf.style.display = D['rup_y'] ? 'block' : 'none';
+  // r_other field
+  const rof = document.getElementById('r_other_field');
+  if(rof) rof.style.display = D['r8'] ? 'block' : 'none';
+}
+
+function renderDots(){
+  const bar = document.getElementById('dots');
+  bar.innerHTML = STEPS.map((s,i)=>{
+    let cls = i < current ? 'done' : (i===current ? 'active' : '');
+    return `<div class="step-dot ${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+  }).join('');
+  document.getElementById('progText').textContent = `ជំហានទី ${current+1} នៃ ${TOTAL} — ${STEPS[current].title}`;
+}
+
+function renderNav(){
+  document.getElementById('btnPrev').style.display = current === 0 ? 'none' : '';
+  const isLast = current === TOTAL - 1;
+  document.getElementById('btnNext').style.display = isLast ? 'none' : '';
+  document.getElementById('lastBtns').style.display = isLast ? 'flex' : 'none';
+}
+
+function navigate(dir){
+  current = Math.max(0, Math.min(TOTAL-1, current+dir));
+  renderDots();
+  renderStep(current);
+  renderNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function jumpTo(idx){
+  if(idx <= current) { current=idx; renderDots(); renderStep(current); renderNav(); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+// ═══════════════════════════════════════════
+// PRINT — populate the form HTML and open it
+// ═══════════════════════════════════════════
+function printForm(){
+  // Build the form HTML with all values filled in
+  // We inject D values into the referral form HTML
+  const formHTML = buildFormHTML();
+  const w = window.open('','_blank');
+  w.document.write(formHTML);
+  w.document.close();
+  setTimeout(()=>w.print(),800);
+}
+
+function buildFormHTML(){
+  function v(k){ return (D[k]||'').toString().replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function chk(k){ return D[k]?'checked':''; }
+  return `<!DOCTYPE html>
+<html lang="km"><head><meta charset="UTF-8">
+<title>លិខិតបញ្ជូន</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hanuman:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Hanuman','Khmer OS','Khmer OS System',serif;color:#000099;font-size:8.2pt;line-height:1.7;padding:7mm 12mm}
+.title{text-align:center;font-size:11pt;font-weight:700;text-decoration:underline;margin:2px 0}
+hr{border:none;border-top:1.5px solid #000099;margin:2px 0}
+.hrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 5px;margin-bottom:3px}
+.row{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;margin-bottom:4px}
+.hdr-top{text-align:center;line-height:1.45;margin-bottom:2px}
+.kh{font-size:11pt;font-weight:700;display:block}
+.mo{font-size:9pt;display:block;margin-bottom:2px}
+input[type=text]{border:none;border-bottom:1px solid #000099;background:transparent;font-family:inherit;font-size:8.2pt;color:#000;padding:0 2px}
+input[type=checkbox]{width:11px;height:11px;accent-color:#000099;vertical-align:middle}
+label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.f{flex:1;min-width:40px}.f2{flex:2;min-width:80px}.f3{flex:3;min-width:100px}
+.w28{width:28px}.w35{width:35px}.w45{width:45px}.w55{width:55px}.w70{width:70px}.w90{width:90px}.w110{width:110px}.w130{width:130px}
+table.cl{width:100%;border-collapse:collapse;margin-top:5px;font-size:8.2pt}
+table.cl td{border:1.5px solid #000099;vertical-align:top;padding:5px 7px;width:50%}
+.sub{border:1.5px solid #000099;padding:4px 6px;margin-bottom:4px}
+.sub:last-child{margin-bottom:0}
+.hd{font-weight:700;margin-bottom:3px}
+.cr{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;margin-bottom:3px}
+.sig{border:1.5px solid #000099;margin-top:5px;display:flex;font-size:7.8pt}
+.sc{flex:1;border-right:1.5px solid #000099;padding:5px 7px 8px;display:flex;flex-direction:column;gap:3px}
+.sc:last-child{border-right:none}
+.sc .hd{font-weight:700;font-size:8pt}
+.sc .sl{margin-top:auto;border-top:1px solid #000099;padding-top:4px;text-align:center;font-size:7.5pt;color:#333}
+.sc-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 4px;margin-bottom:3px}
+@media print{body{padding:5mm 10mm}@page{size:A4 portrait;margin:0}}
+</style></head><body>
+<div class="hdr-top">
+  <span class="kh">ព្រះរាជាណាចក្រកម្ពុជា</span>
+  <span class="mo">ជាតិ&ensp;សាសនា&ensp;ព្រះមហាក្សត្រ</span>
+</div>
+<div class="title">លិខិតបញ្ជូន</div>
+<hr style="margin-bottom:3px">
+<div class="hrow">
+  <label><input type="checkbox" ${chk('fac_hospital')}>&nbsp;មន្ទីរពេទ្យបង្អែក</label>
+  <label><input type="checkbox" ${chk('fac_health_center')}>&nbsp;មណ្ឌលសុខភាព</label>
+  <span>:</span><input type="text" class="f2" value="${v('facility')}">
+  <span style="margin-left:8px">បញ្ជូនទៅកាន់ :</span><input type="text" class="f3" value="${v('refer_to')}">
+</div>
+<div class="hrow">
+  <span>លេខទំនាក់ទំនង</span><input type="text" class="w130" value="${v('refer_tel')}">
+  <span>នៅម៉ោង</span><input type="text" class="w28" value="${v('refer_hr')}">
+  <span>និង</span><input type="text" class="w28" value="${v('refer_min')}"><span>នាទី</span>
+</div>
+<div class="row" style="justify-content:space-between">
+  <div style="display:flex;align-items:baseline;gap:4px"><span>លេខរៀងៈ</span><input type="text" class="w110" value="${v('ref_no')}"></div>
+  <div style="display:flex;align-items:baseline;gap:4px"><span>លេខកូដអ្នកជំងឺៈ</span><input type="text" class="w130" value="${v('pt_code')}"></div>
+</div>
+<div class="row"><span>អ្នកជំងឺឈ្មោះ</span><input type="text" class="f2" value="${v('name')}">
+  <span>ភេទ</span><input type="text" class="w28" value="${v('sex')}">
+  <span>ថ្ងៃខែឆ្នាំកំណើត</span><input type="text" style="width:90px" value="${D.dob?new Date(D.dob).toLocaleDateString('km-KH',{day:'2-digit',month:'2-digit',year:'numeric'}):''}"><span style="margin-left:4px">អាយុ</span><input type="text" class="w28" value="${D.dob?calcAge(D.dob):''}">
+  <span>សញ្ជាតិ</span><input type="text" class="w45" value="${v('nat')}">
+  <span>ទូរស័ព្ទលេខ</span><input type="text" class="w70" value="${v('phone')}"></div>
+<div class="row"><span>អាសយដ្ឋានភូមិ</span><input type="text" class="f" value="${v('village')}">
+  <span>ឃុំ/សង្កាត់</span><input type="text" class="f" value="${v('commune')}">
+  <span>ស្រុក/ខណ្ឌ</span><input type="text" class="f" value="${v('district')}">
+  <span>ខេត្ត/ក្រុង</span><input type="text" class="f" value="${v('province')}"></div>
+<div class="row"><span>មុខរបរ</span><input type="text" class="f" value="${v('occ')}">
+  <span>អង្គភាព</span><input type="text" class="f" value="${v('org')}">
+  <span>លេខអត្តសញ្ញាណបណ្ណ ឬ លេខលិខិតឆ្លងដែន</span><input type="text" class="f" value="${v('id_no')}"></div>
+<div class="row"><span>ឈ្មោះអាណាព្យាបាល ឬ អ្នកកំដរ</span><input type="text" class="f2" value="${v('guardian')}">
+  <span>ត្រូវជា</span><input type="text" class="f" value="${v('relation')}">
+  <span>លេខទូរស័ព្ទទំនាក់ទំនងបន្ទាន់</span><input type="text" class="w90" value="${v('emg_tel')}"></div>
+<div class="row"><span>ចូលសម្រាកព្យាបាលនៅថ្ងៃ</span><input type="text" class="w28" value="${v('day')}">
+  <span>ខែ</span><input type="text" class="w28" value="${v('month')}">
+  <span>ឆ្នាំ</span><input type="text" class="w35" value="${v('year')}">
+  <span>ម៉ោង</span><input type="text" class="w28" value="${v('hr')}">
+  <span>និង</span><input type="text" class="w28" value="${v('min')}"><span>នាទី</span></div>
+<div class="row"><span>សញ្ញាតម្អូញៈ</span><input type="text" style="flex:1;min-width:100px" value="${v('chief_complaint')}"></div>
+<div class="row"><span>ប្រវត្តិសំខាន់ៈ</span><input type="text" style="flex:1;min-width:100px" value="${v('history')}"></div>
+<div class="row"><span>លទ្ធផលពិនិត្យរាងកាយខុសប្រក្រតីៈ</span><input type="text" style="flex:1;min-width:100px" value="${v('physical_exam')}"></div>
+<div class="row"><span>លទ្ធផលតេស្តៈ</span><input type="text" class="f3" value="${v('tests')}">
+  <label style="margin-left:6px"><input type="checkbox" ${chk('test_notdone')}>&nbsp;មិនបានធ្វើ</label></div>
+<div class="row"><span>រោគវិនិច្ឆ័យបឋមៈ</span><input type="text" style="flex:1;min-width:100px" value="${v('diagnosis')}"></div>
+<div class="row"><span>ឱសថដែលបានផ្តល់អោយៈ</span><input type="text" class="f3" value="${v('meds')}">
+  <label style="margin-left:6px"><input type="checkbox" ${chk('meds_none')}>&nbsp;គ្មាន</label></div>
+<div class="row"><input type="text" style="flex:1;width:100%" value="${v('meds2')}"></div>
+<div class="row"><input type="text" style="flex:1;width:100%" value="${v('meds3')}"></div>
+<div class="row"><input type="text" style="flex:1;width:100%" value="${v('meds4')}"></div>
+<div class="row"><span>អន្តរាគមន៍ផ្សេងទៀតៈ</span><input type="text" class="f3" value="${v('interv')}">
+  <label style="margin-left:6px"><input type="checkbox" ${chk('interv_none')}>&nbsp;គ្មាន</label></div>
+<div class="row"><span>សញ្ញាជីវិតថ្មីៗ:</span>
+  <span>ចង្វាក់បេះដូងៈ</span><input type="text" class="w35" value="${v('hr_v')}">
+  <span>សម្ពាធឈាមៈ</span><input type="text" class="w45" value="${v('bp')}">
+  <span>ចង្វាក់ដង្ហើមៈ</span><input type="text" class="w35" value="${v('rr')}">
+  <span>កំដៅៈ</span><input type="text" class="w35" value="${v('temp')}">
+  <span>កំហាប់អុកស៊ីសែនៈ</span><input type="text" class="w35" value="${v('spo2')}"></div>
+<div class="row"><span style="font-weight:700">មូលហេតុបញ្ជូនៈ</span>
+  <label><input type="checkbox" ${chk('r1')}>&nbsp;ថ្នាក់ខ្ពស់</label>
+  <label><input type="checkbox" ${chk('r2')}>&nbsp;អ្នកឯកទេស</label>
+  <label><input type="checkbox" ${chk('r3')}>&nbsp;ពិសោធន៍</label>
+  <label><input type="checkbox" ${chk('r4')}>&nbsp;វះកាត់</label>
+  <label><input type="checkbox" ${chk('r5')}>&nbsp;ICU</label>
+  <label><input type="checkbox" ${chk('r6')}>&nbsp;Imaging</label>
+  <label><input type="checkbox" ${chk('r7')}>&nbsp;សំណើអ្នកជំងឺ</label>
+  <label><input type="checkbox" ${chk('r8')}>&nbsp;ផ្សេងៗ:</label>
+  <input type="text" class="f2" value="${v('r_other')}"></div>
+<table class="cl"><tr>
+<td>
+  <div class="hd">ស្ត្រីមានផ្ទៃពោះ/ស្ត្រីទើបសម្រាលកូនរួច</div>
+  <div class="cr"><span>ចំនួនផ្ទៃពោះ</span><input type="text" class="w28" value="${v('g')}">
+    <span>ចំនួនសម្រាលៈ</span><input type="text" class="w28" value="${v('p')}">
+    <span>ចំនួនរលូត/រំលូតៈ</span><input type="text" class="w28" value="${v('a')}"></div>
+  <div class="cr"><span>អាយុគភ៌ៈ</span><input type="text" class="w28" value="${v('ga')}">
+    <span>ថ្ងៃសម្រាលរំពឹងទុកៈ</span><input type="text" class="f" value="${v('edd')}"></div>
+  <div class="cr"><span>ផលវិបាកផ្សេងៗ:</span><input type="text" class="f" value="${v('compl')}"></div>
+  <div class="cr"><span>កំពុងឈឺពោះសម្រាល</span></div>
+  <div class="cr"><span>បែកទឹកភ្លោះឬអត់ៈ</span>
+    <label><input type="checkbox" ${chk('rup_y')}>&nbsp;បែក&nbsp;នៅម៉ោងៈ</label>
+    <input type="text" class="w45" value="${v('rup_hr')}">
+    <label><input type="checkbox" ${chk('rup_n')}>&nbsp;ទេ</label></div>
+  <div class="cr"><span>ទម្រង់បង្ហាញនៃគភ៌ៈ</span><input type="text" class="f" value="${v('present')}"></div>
+  <div class="cr"><span>ប្រើអង់ទីប៊ីយ៉ូទិកពេលសម្រាលៈ</span>
+    <label><input type="checkbox" ${chk('ab_y')}>&nbsp;បាទ/ចាស</label>
+    <label><input type="checkbox" ${chk('ab_n')}>&nbsp;ទេ</label></div>
+  <div class="cr"><span>ប្រើថ្នាំ Dexamethasone:</span>
+    <label><input type="checkbox" ${chk('dx_y')}>&nbsp;បាទ/ចាស</label>
+    <label><input type="checkbox" ${chk('dx_n')}>&nbsp;ទេ</label></div>
+  <div class="cr"><span>ប្រើខោបន្ថយស្ហុកៈ</span>
+    <label><input type="checkbox" ${chk('sh_y')}>&nbsp;បាទ/ចាស</label>
+    <label><input type="checkbox" ${chk('sh_n')}>&nbsp;ទេ</label></div>
+</td>
+<td style="padding:0">
+  <div class="sub">
+    <div class="hd">ទារកអាយុក្រោម ៦សប្តាហ៍</div>
+    <div class="cr"><span>ទម្ងន់ពេលសម្រាលៈ</span><input type="text" class="w45" value="${v('bwt')}">
+      <span>គក្រ&nbsp;&nbsp;អាយុគភ៌ពេលសម្រាលៈ</span><input type="text" class="w35" value="${v('gest')}"></div>
+    <div class="cr"><span>វិធីសម្រាលៈ</span><input type="text" class="f" value="${v('delmod')}"></div>
+    <div class="cr"><span>ទម្ងន់បច្ចុប្បន្នៈ</span><input type="text" class="w45" value="${v('cwt')}"><span>គក្រ</span></div>
+  </div>
+  <div class="sub">
+    <div class="hd">កុមារអាយុក្រោម ៥ឆ្នាំ</div>
+    <div class="cr"><span>ទម្ងន់បច្ចុប្បន្នៈ</span><input type="text" class="w45" value="${v('wt5')}"><span>គក្រ</span></div>
+    <div class="cr"><span>ទម្ងន់ធៀបនឹងអាយុៈ</span>
+      <label><input type="checkbox" ${chk('waz1')}>&nbsp;បៃតង</label>
+      <label><input type="checkbox" ${chk('waz2')}>&nbsp;ទឹកក្រូច</label>
+      <label><input type="checkbox" ${chk('waz3')}>&nbsp;ក្រហម</label></div>
+    <div class="cr"><span>បើក្រហមៈ&nbsp;កម្ពស់ៈ</span><input type="text" class="w35" value="${v('ht')}">
+      <span>ស.ម&nbsp;&nbsp;ទម្ងន់ធៀបនឹងកម្ពស់&nbsp;SD:</span><input type="text" class="w35" value="${v('sd')}"></div>
+    <div class="cr"><span>ហើមជើងទាំងពីរ</span>
+      <label><input type="checkbox" ${chk('ed_y')}>&nbsp;ហើម</label>
+      <label><input type="checkbox" ${chk('ed_n')}>&nbsp;ទេ</label></div>
+    <div class="cr"><span>មានបញ្ហាកង្វះអាហារូបត្ថម្ភស្រួចស្រាល់ធ្ងន់ធ្ងរ</span>
+      <label><input type="checkbox" ${chk('mam_y')}>&nbsp;មាន</label>
+      <label><input type="checkbox" ${chk('mam_n')}>&nbsp;គ្មាន</label></div>
+  </div>
+</td></tr></table>
+<div class="sig">
+  <div class="sc">
+    <div class="hd">មូលដ្ឋានផ្តល់សេវាដែលបញ្ជូនៈ</div>
+    <div class="sc-row"><span>អ្នកផ្តល់សេវាដែលបញ្ជូនៈ</span><input type="text" class="f" value="${v('s1_provider')}"></div>
+    <div class="sc-row"><span>លេខទូរស័ព្ទអ្នកផ្តល់សេវាបញ្ជូនៈ</span><input type="text" class="f" value="${v('s1_tel')}"></div>
+    <div class="sc-row"><span>កាលបរិច្ឆេទបញ្ជូនៈ</span><input type="text" class="w55" value="${v('s1_date')}">
+      <span>នៅម៉ោងៈ</span><input type="text" class="w28" value="${v('s1_hr')}">
+      <span>និង</span><input type="text" class="w28" value="${v('s1_min')}"><span>នាទី</span></div>
+    <div class="sl">ហត្ថលេខាអ្នកបញ្ជូនៈ</div>
+  </div>
+  <div class="sc">
+    <div class="hd">មូលដ្ឋានសុខាភិបាលទទួលៈ</div>
+    <div class="sc-row"><span>អ្នកផ្តល់សេវាដែលទទួលៈ</span><input type="text" class="f" value="${v('s2_recv')}"></div>
+    <div class="sc-row"><span>លេខទូរស័ព្ទអ្នកផ្តល់សេវាទទួលៈ</span><input type="text" class="f" value="${v('s2_tel')}"></div>
+    <div class="sc-row"><span>កាលបរិច្ឆេទមកដល់ៈ</span><input type="text" class="w55" value="${v('s2_date')}">
+      <span>នៅម៉ោងៈ</span><input type="text" class="w28" value="${v('s2_hr')}">
+      <span>និង</span><input type="text" class="w28" value="${v('s2_min')}"><span>នាទី</span></div>
+    <div class="sl">ហត្ថលេខាអ្នកទទួលៈ</div>
+  </div>
+</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body></html>`;
+}
+
+
+// Age calculation helpers
+function calcAge(dob){
+  if(!dob) return '';
+  const b = new Date(dob), t = new Date();
+  let y = t.getFullYear()-b.getFullYear();
+  const m = t.getMonth()-b.getMonth();
+  if(m<0||(m===0&&t.getDate()<b.getDate())) y--;
+  if(y<1){
+    let months = (t.getFullYear()-b.getFullYear())*12+(t.getMonth()-b.getMonth());
+    if(t.getDate()<b.getDate()) months--;
+    return months+'ខែ';
+  }
+  return y+'ឆ្នាំ';
+}
+function updateAge(){
+  const el=document.getElementById('age_display');
+  if(el && D.dob) el.textContent='អាយុ: '+calcAge(D.dob);
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE SHEETS INTEGRATION
+// ═══════════════════════════════════════════
+
+// ▶ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
+let SHEETS_URL = localStorage.getItem('referral_sheets_url') || 'https://script.google.com/macros/s/AKfycbyO_i8rKdRCvmm1GvsuIOoc482InIiexYsz24ZHY_tAL3kiatDgwNAxwdQn9FH3919M/exec';
+
+function showModal(html){ document.getElementById('modalContent').innerHTML=html; document.getElementById('modal').style.display='flex'; }
+function hideModal(){ document.getElementById('modal').style.display='none'; }
+
+function submitToSheets(){
+  // If no URL configured, ask user to set it
+  if(!SHEETS_URL){
+    showModal(`
+      <div class="icon">⚙️</div>
+      <h3>កំណត់ URL របស់ Google Sheets</h3>
+      <p>បិទភ្ជាប់ Google Apps Script Web App URL ដែលបានចម្លងពី Google Apps Script:</p>
+      <input class="url-field" id="urlInput" placeholder="https://script.google.com/macros/s/.../exec" value="${SHEETS_URL}">
+      <p style="font-size:8pt;color:#999">URL នេះនឹងត្រូវបានរក្សាទុកក្នុងឧបករណ៍នេះ</p>
+      <div class="modal-btns">
+        <button class="btn btn-submit" onclick="saveUrl()">រក្សាទុក</button>
+        <button class="btn btn-prev" onclick="hideModal()">បោះបង់</button>
+      </div>
+    `);
+    return;
+  }
+  doSubmit();
+}
+
+function saveUrl(){
+  const u = document.getElementById('urlInput').value.trim();
+  if(!u){ alert('សូមដាក់ URL'); return; }
+  SHEETS_URL = u;
+  localStorage.setItem('referral_sheets_url', u);
+  hideModal();
+  doSubmit();
+}
+
+function doSubmit(){
+  // Disable button, show spinner
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  showModal(`<div class="spinner"></div><h3>កំពុងដាក់ស្នើ...</h3><p>សូមរង់ចាំ</p>`);
+
+  // Build flat payload
+  const payload = {
+    timestamp: new Date().toISOString(),
+    facility_type: [D.fac_hospital?'មន្ទីរពេទ្យបង្អែក':'', D.fac_health_center?'មណ្ឌលសុខភាព':''].filter(Boolean).join(', '),
+    facility: D.facility,
+    refer_to: D.refer_to,
+    refer_tel: D.refer_tel,
+    refer_time: (D.refer_hr||'')+(D.refer_min?':'+D.refer_min:''),
+    ref_no: D.ref_no,
+    pt_code: D.pt_code,
+    name: D.name,
+    sex: D.sex,
+    dob: D.dob,
+    age: D.dob ? calcAge(D.dob) : '',
+    nat: D.nat,
+    phone: D.phone,
+    village: D.village,
+    commune: D.commune,
+    district: D.district,
+    province: D.province,
+    occ: D.occ,
+    org: D.org,
+    id_no: D.id_no,
+    guardian: D.guardian,
+    relation: D.relation,
+    emg_tel: D.emg_tel,
+    admission: [D.day,D.month,D.year].filter(Boolean).join('/')+(D.hr?' '+D.hr+(D.min?':'+D.min:''):''),
+    chief_complaint: D.chief_complaint,
+    history: D.history,
+    physical_exam: D.physical_exam,
+    tests: D.test_notdone ? 'មិនបានធ្វើ' : D.tests,
+    diagnosis: D.diagnosis,
+    meds: D.meds_none ? 'គ្មាន' : [D.meds,D.meds2,D.meds3,D.meds4].filter(Boolean).join(' | '),
+    interv: D.interv_none ? 'គ្មាន' : D.interv,
+    hr_v: D.hr_v, bp: D.bp, rr: D.rr, temp: D.temp, spo2: D.spo2,
+    reason: ['r1','r2','r3','r4','r5','r6','r7','r8']
+      .map((k,i)=>D[k]?['ថ្នាក់ខ្ពស់','អ្នកឯកទេស','ពិសោធន៍','វះកាត់','ICU','Imaging','សំណើអ្នកជំងឺ','ផ្សេងៗ'][i]:null)
+      .filter(Boolean).join(', '),
+    reason_other: D.r_other,
+    // Obstetric
+    gravida:D.g, para:D.p, abort:D.a, ga:D.ga, edd:D.edd,
+    compl:D.compl,
+    rupture: D.rup_y?'បែក នៅម៉ោង '+D.rup_hr : D.rup_n?'ទេ':'',
+    presentation:D.present,
+    antibiotic: D.ab_y?'បាទ/ចាស':D.ab_n?'ទេ':'',
+    dexamethasone: D.dx_y?'បាទ/ចាស':D.dx_n?'ទេ':'',
+    shock_trousers: D.sh_y?'បាទ/ចាស':D.sh_n?'ទេ':'',
+    // Paediatric
+    bwt:D.bwt, gest:D.gest, delmod:D.delmod, cwt:D.cwt,
+    wt5:D.wt5,
+    waz: [D.waz1?'បៃតង':'',D.waz2?'ទឹកក្រូច':'',D.waz3?'ក្រហម':''].filter(Boolean).join(', '),
+    height:D.ht, sd:D.sd,
+    edema: D.ed_y?'ហើម':D.ed_n?'ទេ':'',
+    malnut: D.mam_y?'មាន':D.mam_n?'គ្មាន':'',
+    // Signature
+    s1_provider:D.s1_provider, s1_tel:D.s1_tel, s1_date:D.s1_date,
+    s1_time:(D.s1_hr||'')+(D.s1_min?':'+D.s1_min:''),
+    s2_recv:D.s2_recv, s2_tel:D.s2_tel, s2_date:D.s2_date,
+    s2_time:(D.s2_hr||'')+(D.s2_min?':'+D.s2_min:''),
+  };
+
+  fetch(SHEETS_URL, {
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  })
+  .then(()=>{
+    D._submitted = true;
+    showModal(`
+      <div class="icon">✅</div>
+      <h3>ដាក់ស្នើដោយជោគជ័យ!</h3>
+      <p>ទិន្នន័យត្រូវបានរក្សាទុកក្នុង Google Sheets។<br>អ្នកអាចបោះពុម្ពឥឡូវនេះ ឬបិទទំព័រ។</p>
+      <div class="modal-btns">
+        <button class="btn btn-print" onclick="hideModal();printForm()">🖨️ បោះពុម្ព</button>
+        <button class="btn btn-prev" onclick="hideModal()">បិទ</button>
+      </div>
+    `);
+    // Update status badge
+    const ss = document.getElementById('submitStatus');
+    if(ss) ss.innerHTML='<span class="status-badge submitted">✓ ដាក់ស្នើរួចហើយ</span>';
+    btn.disabled = false;
+  })
+  .catch(err=>{
+    showModal(`
+      <div class="icon">❌</div>
+      <h3>មានបញ្ហាក្នុងការដាក់ស្នើ</h3>
+      <p>${err.message||'បញ្ហាការតភ្ជាប់'}</p>
+      <div class="modal-btns">
+        <button class="btn btn-submit" onclick="hideModal();doSubmit()">ព្យាយាមម្តងទៀត</button>
+        <button class="btn btn-prev" onclick="hideModal()">បោះបង់</button>
+      </div>
+    `);
+    btn.disabled = false;
+  });
+}
+
+// Allow resetting URL
+function resetSheetsUrl(){
+  SHEETS_URL='';
+  localStorage.removeItem('referral_sheets_url');
+  showModal(`
+    <div class="icon">⚙️</div>
+    <h3>កំណត់ URL ម្តងទៀត</h3>
+    <input class="url-field" id="urlInput" placeholder="https://script.google.com/macros/s/.../exec">
+    <div class="modal-btns">
+      <button class="btn btn-submit" onclick="saveUrl()">រក្សាទុក</button>
+      <button class="btn btn-prev" onclick="hideModal()">បោះបង់</button>
+    </div>
+  `);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+renderDots();
+renderStep(current);
+renderNav();
+
+
+// ══════════════════════════════════════════════════
+// ADMIN CODE (from referral-admin.html)
+// ══════════════════════════════════════════════════
+
+
+if(!SHEETS_URL) SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyO_i8rKdRCvmm1GvsuIOoc482InIiexYsz24ZHY_tAL3kiatDgwNAxwdQn9FH3919M/exec';
+let allRows = [];
+
+function configUrl(){
+  document.getElementById('urlCard').style.display='block';
+  document.getElementById('urlInput').value=SHEETS_URL;
+}
+function saveUrl(){
+  const u=document.getElementById('urlInput').value.trim();
+  if(!u){alert('សូមដាក់ URL');return;}
+  SHEETS_URL=u; localStorage.setItem('referral_sheets_url',u);
+  document.getElementById('urlCard').style.display='none';
+  loadData();
+}
+
+// auto-load handled by panel switch
+
+function loadData(){
+  if(!SHEETS_URL){configUrl();return;}
+  document.getElementById('ctrlCard').style.display='block';
+  document.getElementById('tableArea').innerHTML='<div class="msg"><div class="spinner"></div>កំពុងទាញ...</div>';
+  document.getElementById('stats').style.display='none';
+
+  fetch(SHEETS_URL+'?admin=1&t='+Date.now())
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.status!=='ok') throw new Error(d.message||'Error');
+      allRows = d.rows||[];
+      updateStats();
+      renderTable(allRows);
+    })
+    .catch(e=>{
+      document.getElementById('tableArea').innerHTML=`<div class="msg" style="color:red">❌ មានបញ្ហា: ${e.message}<br><small>ត្រូតពិនិត្យ URL និង permission</small></div>`;
+    });
+}
+
+function updateStats(){
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('statTotal').textContent = allRows.length;
+  document.getElementById('statToday').textContent = allRows.filter(r=>(r['Timestamp']||'').slice(0,10)===today).length;
+  document.getElementById('statHosp').textContent  = allRows.filter(r=>(r['Facility Type / ប្រភេទ']||'').includes('មន្ទីរ')).length;
+  document.getElementById('statHealth').textContent= allRows.filter(r=>(r['Facility Type / ប្រភេទ']||'').includes('មណ្ឌល')).length;
+  document.getElementById('stats').style.display='grid';
+}
+
+function filterTable(){
+  const q  = document.getElementById('search').value.toLowerCase();
+  const ft = document.getElementById('filterFac').value;
+  const filtered = allRows.filter(r=>{
+    const txt = Object.values(r).join(' ').toLowerCase();
+    const matchQ = !q || txt.includes(q);
+    const matchF = !ft || (r['Facility Type / ប្រភេទ']||'').includes(ft);
+    return matchQ && matchF;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(rows){
+  if(!rows.length){
+    document.getElementById('tableArea').innerHTML='<div class="msg">គ្មានទិន្នន័យ</div>';
+    return;
+  }
+  const f = (v)=>(v||'—');
+  const facBadge = (t)=>(t||'').includes('មន្ទីរ')
+    ? `<span class="badge badge-h">មន្ទីរ</span>`
+    : `<span class="badge badge-c">មណ្ឌល</span>`;
+
+  let html=`<div class="tbl-wrap"><table>
+  <thead><tr>
+    <th>#</th><th>ពេលវេលា</th><th>ប្រភេទ</th><th>ស្ថានីយ</th><th>ឈ្មោះអ្នកជំងឺ</th>
+    <th>ភេទ</th><th>អាយុ</th><th>បញ្ជូនទៅ</th><th>រោគវិនិច្ឆ័យ</th><th>មូលហេតុ</th><th></th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((r,i)=>{
+    const ts = r['Timestamp'] ? new Date(r['Timestamp']).toLocaleDateString('km-KH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    html+=`<tr>
+      <td>${i+1}</td>
+      <td style="white-space:nowrap">${ts}</td>
+      <td>${facBadge(r['Facility Type / ប្រភេទ'])}</td>
+      <td>${f(r['Facility Name / ឈ្មោះ'])}</td>
+      <td><strong>${f(r['Patient Name / ឈ្មោះ'])}</strong></td>
+      <td>${f(r['Sex / ភេទ'])}</td>
+      <td>${f(r['Age / អាយុ'])}</td>
+      <td>${f(r['Referred To / បញ្ជូនទៅ'])}</td>
+      <td>${f(r['Diagnosis / រោគវិនិច្ឆ័យ'])}</td>
+      <td>${f(r['Reason / មូលហេតុ'])}</td>
+      <td><button class="btn btn-blue" style="padding:4px 10px;font-size:7.5pt" onclick='showDetail(${JSON.stringify(JSON.stringify(r))})'>លម្អិត</button></td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  document.getElementById('tableArea').innerHTML=html;
+}
+
+function showDetail(jsonStr){
+  const r = JSON.parse(jsonStr);
+  function dr(k,v){return v?`<div class="det-row"><span class="det-key">${k}</span><span class="det-val">${v}</span></div>`:''}
+  const html=`
+    <h2>📋 ព័ត៌មានលម្អិតអ្នកជំងឺ</h2>
+    <div class="det-sec">
+      <h3>ស្ថានីយ</h3>
+      ${dr('ប្រភេទ',r['Facility Type / ប្រភេទ'])}
+      ${dr('ឈ្មោះ',r['Facility Name / ឈ្មោះ'])}
+      ${dr('បញ្ជូនទៅ',r['Referred To / បញ្ជូនទៅ'])}
+      ${dr('លេខទំនាក់ទំនង',r['Contact / លេខទំនាក់ទំនង'])}
+      ${dr('ម៉ោង',r['Referral Time / ម៉ោង'])}
+    </div>
+    <div class="det-sec">
+      <h3>អ្នកជំងឺ</h3>
+      ${dr('ឈ្មោះ',r['Patient Name / ឈ្មោះ'])}
+      ${dr('ភេទ',r['Sex / ភេទ'])} ${dr('ថ្ងៃខែឆ្នាំ',r['DOB / ថ្ងៃខែឆ្នាំ'])} ${dr('អាយុ',r['Age / អាយុ'])}
+      ${dr('ទូរស័ព្ទ',r['Phone / ទូរស័ព្ទ'])}
+      ${dr('អាសយដ្ឋាន',[r['Village / ភូមិ'],r['Commune / ឃុំ'],r['District / ស្រុក'],r['Province / ខេត្ត']].filter(Boolean).join(', '))}
+      ${dr('អ្នកថែទាំ',r['Guardian / អាណាព្យាបាល'])} ${dr('ត្រូវជា',r['Relation / ត្រូវជា'])}
+    </div>
+    <div class="det-sec">
+      <h3>គ្លីនិក</h3>
+      ${dr('សញ្ញាតម្អូញ',r['Chief Complaint / សញ្ញា'])}
+      ${dr('ប្រវត្តិ',r['History / ប្រវត្តិ'])}
+      ${dr('ពិនិត្យ',r['Physical Exam / ពិនិត្យ'])}
+      ${dr('តេស្ត',r['Tests / តេស្ត'])}
+      ${dr('រោគវិនិច្ឆ័យ',r['Diagnosis / រោគវិនិច្ឆ័យ'])}
+      ${dr('ឱសថ',r['Medications / ឱសថ'])}
+      ${dr('អន្តរាគមន៍',r['Interventions / អន្តរាគមន៍'])}
+    </div>
+    <div class="det-sec">
+      <h3>សញ្ញាជីវិត & មូលហេតុ</h3>
+      ${dr('HR',r['HR'])} ${dr('BP',r['BP'])} ${dr('RR',r['RR'])} ${dr('Temp',r['Temp'])} ${dr('SpO2',r['SpO2'])}
+      ${dr('មូលហេតុ',r['Reason / មូលហេតុ'])}
+    </div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-gray" onclick="closeDetail()">បិទ</button>
+    </div>`;
+  document.getElementById('detailContent').innerHTML=html;
+  document.getElementById('detailOverlay').style.display='flex';
+}
+function closeDetail(){ document.getElementById('detailOverlay').style.display='none'; }
+
+function exportCSV(){
+  if(!allRows.length){alert('គ្មានទិន្នន័យ');return;}
+  const headers=Object.keys(allRows[0]);
+  const lines=[headers.join(','),...allRows.map(r=>headers.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(','))];
+  const blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='referrals_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+
+</script>
+</body>
+</html>
